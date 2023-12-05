@@ -23,6 +23,7 @@ def points_per_card(input_data):
         points = 0
     return points
 
+
 # Specify the path to your text file
 file_path = 'input.txt'
 

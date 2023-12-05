@@ -12,7 +12,13 @@
 # (r+1, c-1), (r+1, c), (r+1, c+1) ...
 # ...
 
-import re
+# Use pandas to organise input data into a matrix, use size function to determine rows and cols in input data
+# For a given coordinate (r, c), scan through using these two nested for loops:
+# for r in range(1, rows-1):
+    # for c in range(1, cols-1):
+        # if matrix[r][c] in symbols:
+            # Scan 3 x 3 area to see if there are any numbers (MAKE SURE TO AVOID DOUBLE COUNTING)
+
 import pandas as pd
 
 symbols = {'@', '#', '$', '%', '&', '*', '-', '+', '=', '/'}
@@ -48,7 +54,8 @@ def extract_digits(string, position):
         # If the character is not a digit or dot, stop iterating
         else:
             break
-    return result
+    return int(result)
+
 
 def scan_surrounding_positions(r, c):
     
@@ -63,12 +70,6 @@ def scan_surrounding_positions(r, c):
             # Process or scan the position (i, j)
             print(f"Scanning position: ({i}, {j})")
 
-# Use pandas to organise into a matrix, use size function to determine rows and cols in input data
-# for a given coordinate (r, c), scan through using these two nested for loops:
-# for r in range(1, rows-1):
-    # for c in range(1, cols-1):
-        # if matrix[r][c] in symbols:
-            # Scan 3 x 3 area to see if there are any numbers (MAKE SURE TO AVOID DOUBLE COUNTING)
 
 def make_df(input_data_file_path):
 
@@ -85,21 +86,33 @@ def make_df(input_data_file_path):
         return df
 
 
+
+# Create df from input data
 data = make_df('input.txt')
 rows, cols = data.shape
 print(data)
 
+# Initialise a set of numbers to keep (which need to be summed up later)
+nums_to_keep = set()
+ordered_list = []
 
+# Begin looping through elements starting from (1, 1) and ending at (r-1, c-1)
 for r in range(1, rows-1):
     for c in range(1, cols-1):
-        print(data.iloc[r, c])
-        
         if data.iloc[r, c] in symbols:
             # Scan 3 x 3 area
             for i in range(r - 1, r + 2):
                 for j in range(c - 1, c + 2):
-                # Need to locate the digits and return something useful – might need to include another argument in the function
-
+                # Find which numbers to keep
+                    if str(data.iloc[i, j]).isdigit():
+                        string = ''.join(map(str, data.iloc[i, :]))
+                        position = j
+                        # nums_to_keep.add(int(extract_digits(string, position)))
+                        # print(nums_to_keep)
+                        element = int(extract_digits(string, position))
+                        if element not in nums_to_keep:
+                            ordered_list.append(element)
+                            nums_to_keep.add(element)
                     # Skip the current position (r, c)
                     if i == r and j == c:
                         continue
@@ -107,17 +120,5 @@ for r in range(1, rows-1):
                     # Process or scan the position (i, j)
                     print(f"Scanning position: ({i}, {j})")
 
-
-# # Specify the path to your text file
-# file_path = 'input.txt'
-
-# # Open the file in read mode and iterate through each line
-# with open(file_path, 'r') as file:
-    
-#     for line in file:
-        
-#         nums_to_keep = re.findall(r'\d+', line)
-#         # print(nums_to_keep)
-
-#         # for i in range(0, len(line)):
-#         #     if line[i] in symbols:
+print(ordered_list)
+print(sum(ordered_list))
