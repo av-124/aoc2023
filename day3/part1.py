@@ -57,20 +57,6 @@ def extract_digits(string, position):
     return int(result)
 
 
-def scan_surrounding_positions(r, c):
-    
-    for i in range(r - 1, r + 2):
-        for j in range(c - 1, c + 2):
-            # Need to locate the digits and return something useful – might need to include another argument in the function
-
-            # Skip the current position (r, c)
-            if i == r and j == c:
-                continue
-            
-            # Process or scan the position (i, j)
-            print(f"Scanning position: ({i}, {j})")
-
-
 def make_df(input_data_file_path):
 
     # Read the content of the file
@@ -89,36 +75,54 @@ def make_df(input_data_file_path):
 
 # Create df from input data
 data = make_df('input.txt')
+data_copy = data.copy()
 rows, cols = data.shape
 print(data)
 
-# Initialise a set of numbers to keep (which need to be summed up later)
-nums_to_keep = set()
-ordered_list = []
+# Initialise a list of numbers to keep (which need to be summed up later)
+nums_list = []
 
 # Begin looping through elements starting from (1, 1) and ending at (r-1, c-1)
 for r in range(1, rows-1):
     for c in range(1, cols-1):
         if data.iloc[r, c] in symbols:
+
             # Scan 3 x 3 area
             for i in range(r - 1, r + 2):
+                
+                # Store non-duplicate numbers during a 3 x 3 scan before adding to the ordered_list
+                # Reset after each iteration of the loop
+                seen = set()
+
                 for j in range(c - 1, c + 2):
-                # Find which numbers to keep
+
+                    # Find which numbers to keep
                     if str(data.iloc[i, j]).isdigit():
                         string = ''.join(map(str, data.iloc[i, :]))
                         position = j
-                        # nums_to_keep.add(int(extract_digits(string, position)))
-                        # print(nums_to_keep)
-                        element = int(extract_digits(string, position))
-                        if element not in nums_to_keep:
-                            ordered_list.append(element)
-                            nums_to_keep.add(element)
+                        seen.add(int(extract_digits(string, position)))
+                        # print(string)
+                        # print(seen)
+
+                        # Check to see if scan has worked
+                        data_copy.iloc[i, j] = 0
+
                     # Skip the current position (r, c)
                     if i == r and j == c:
                         continue
                     
                     # Process or scan the position (i, j)
-                    print(f"Scanning position: ({i}, {j})")
+                    # print(f"Scanning position: ({i}, {j})")
 
-print(ordered_list)
-print(sum(ordered_list))
+                # Extract relevant numbers from each line of the input file and store in a list
+                # If a certain number has been seen, add it to the list
+                element = int(extract_digits(string, position))
+                if element in seen:
+                    nums_list.append(element)
+
+print(nums_list)
+print(sum(nums_list))
+
+# Export data_copy to a .txt file
+export_file_path = 'check_output.txt'
+data_copy.to_csv(export_file_path, sep=' ', index=False, header=False)
