@@ -94,11 +94,13 @@ for r in range(1, rows-1):
                 # Reset after each iteration of the loop
                 seen = set()
 
+                # String needs to be assigned in the outer loop
+                string = ''.join(map(str, data.iloc[i, :]))
+
                 for j in range(c - 1, c + 2):
 
                     # Find which numbers to keep
                     if str(data.iloc[i, j]).isdigit():
-                        string = ''.join(map(str, data.iloc[i, :]))
                         position = j
                         seen.add(int(extract_digits(string, position)))
                         # print(string)
